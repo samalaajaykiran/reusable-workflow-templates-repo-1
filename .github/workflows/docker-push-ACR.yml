@@ -15,10 +15,6 @@ on:
         description: 'Image tag'
         required: true
         type: string
-      ResourceGroup:
-        description: 'Azure Resource Group name'
-        required: true
-        type: string
     
     secrets:
       ACR_USERNAME:
@@ -78,4 +74,5 @@ jobs:
           docker images
 
           docker push ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
+
 
