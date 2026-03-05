@@ -15,23 +15,10 @@ on:
         description: 'Docker image name in ACR'
         required: true
         type: string
-      tag:
-        description: 'Docker image tag in ACR'
-        required: true
-        type: string
       acr-login-server:
         description: 'Azure Container Registry login server'
         required: true  
         type: string
-      runtime:
-        description: 'Runtime Stack'
-        required: true  
-        type: string
-      acr-location:
-        description: 'Location of Azure Container Registry'
-        required: true
-        type: string
-
     secrets:
       AZURE_CREDENTIALS:
         description: 'Azure Credentials'
@@ -51,15 +38,6 @@ jobs:
           inlineScript: |
             az account show
             az storage -h
- 
-      - name: Create App Service Plan
-        run: |
-          az appservice plan create --name ${{ inputs.app-name }}-plan --resource-group ${{ inputs.ResourceGroup }} --sku F1 --is-linux
-      - name: Create Web App Service
-        run: |
-          az webapp create --name ${{ inputs.app-name }} --resource-group ${{ inputs.ResourceGroup }} --plan ${{ inputs.app-name }}-plan --runtime ${{ inputs.runtime }} 
-
-          
       
       - name: Deploy Docker container to Azure App Service
         run: |
