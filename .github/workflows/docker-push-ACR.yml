@@ -66,11 +66,6 @@ jobs:
           ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
           ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
       
-      # Verify if login was successful by listing repositories in ACR
-      - name: List repositories in ACR
-        run: |
-          az acr repository list --name ${{ inputs.acr-name }} --output table
-      
       - name: Load Docker image from artifact
         run: |
           docker load -i ./docker_image/${{ inputs.image-name }}_${{ inputs.tag }}.tar    
@@ -83,3 +78,4 @@ jobs:
           docker images
 
           docker push ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
+
