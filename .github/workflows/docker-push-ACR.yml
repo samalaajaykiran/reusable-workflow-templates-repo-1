@@ -7,7 +7,7 @@ on:
         description: 'The image name to push'
         required: true
         type: string
-      login-server:
+      ACR_LOGIN_SERVER:
         description: 'Azure Container Registry login server'
         required: true
         type: string
@@ -21,10 +21,10 @@ on:
         type: string
     
     secrets:
-      username:
+      ACR_USERNAME:
         description: 'ACR_Username'
         required: true
-      password:
+      ACR_PASSWORD:
         description: 'ACR_Password'
         required: true
       AZURE_CREDENTIALS:
@@ -62,7 +62,7 @@ jobs:
       - name: Log in to Azure Container Registry (ACR)
         uses: azure/docker-login@v2
         with:
-          login-server: ${{ secrets.ACR_SERVER_URL }}
+          login-server: ${{ inputs.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
       
@@ -78,6 +78,7 @@ jobs:
           docker images
 
           docker push ${{ inputs.login-server }}/${{ inputs.image-name }}:${{ github.sha }}
+
 
 
 
