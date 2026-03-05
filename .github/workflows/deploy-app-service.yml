@@ -1,0 +1,73 @@
+name: Deploy to Azure App Service
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        description: 'Azure App Service name'
+        required: true
+        type: string
+      ResourceGroup:
+        description: 'Azure Resource Group name'
+        required: true
+        type: string
+      image-name:
+        description: 'Docker image name in ACR'
+        required: true
+        type: string
+      tag:
+        description: 'Docker image tag in ACR'
+        required: true
+        type: string
+      acr-login-server:
+        description: 'Azure Container Registry login server'
+        required: true  
+        type: string
+      runtime:
+        description: 'Runtime Stack'
+        required: true  
+        type: string
+      acr-location:
+        description: 'Location of Azure Container Registry'
+        required: true
+        type: string
+
+    secrets:
+      AZURE_CREDENTIALS:
+        description: 'Azure Credentials'
+        required: true       
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Set up Azure CLI
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az account show
+            az storage -h
+ 
+      - name: Create App Service Plan
+        run: |
+          az appservice plan create --name ${{ inputs.app-name }}-plan --resource-group ${{ inputs.ResourceGroup }} --sku F1 --is-linux
+      - name: Create Web App Service
+        run: |
+          az webapp create --name ${{ inputs.app-name }} --resource-group ${{ inputs.ResourceGroup }} --plan ${{ inputs.app-name }}-plan --runtime ${{ inputs.runtime }} 
+
+          
+      
+      - name: Deploy Docker container to Azure App Service
+        run: |
+          az webapp config container set \
+            --name ${{ inputs.app-name }} \
+            --resource-group ${{ inputs.ResourceGroup }} \
+            --container-image-name ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
+          
+      - name: Output Web App URL
+        run: |
+          echo "Web app deployed at: https://${{ inputs.app-name }}.azurewebsites.net"

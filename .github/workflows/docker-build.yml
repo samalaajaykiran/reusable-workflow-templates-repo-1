@@ -1,0 +1,47 @@
+name: Docker Build
+
+on:
+  workflow_call:
+    inputs:
+      dockerfile:
+        description: 'Path to Dockerfile'
+        required: true
+        type: string
+      image-name:
+        description: 'Image name'
+        required: true
+        type: string
+      tag:
+        description: 'Tag'
+        required: true
+        type: string
+      context:
+        description: 'Context for Docker build'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image-name }}:${{ inputs.tag }} ${{ inputs.context }}
+          docker save ${{ inputs.image-name }}:${{ inputs.tag }} -o ${{ inputs.image-name }}_${{ inputs.tag }}.tar
+        
+      - name: Upload Docker image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.image-name }}-image
+          path: ${{ inputs.image-name }}_${{ inputs.tag }}.tar
+          
+      - name: List Docker images
+        run: |
+          echo "Listing Docker images..."
+          docker images
