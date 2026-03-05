@@ -76,3 +76,4 @@ jobs:
           docker push ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
 
 
+
