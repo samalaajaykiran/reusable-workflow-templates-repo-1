@@ -19,23 +19,7 @@ on:
         description: 'Azure Resource Group name'
         required: true
         type: string
-      acr-name:
-        description: 'Azure Container Registry name'
-        required: true
-        type: string
-      acr-location:
-        description: 'Location of Azure Container Registry'
-        required: true
-        type: string
-      app-name:
-        description: 'Azure App Service name'
-        required: true
-        type: string
-      runtime:
-        description: 'Runtime Stack'
-        required: true  
-        type: string
-        
+    
     secrets:
       ACR_USERNAME:
         description: 'ACR_Username'
@@ -63,7 +47,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2 
       
-      # Log in to Azure using GitHub Secrets
       - name: Log in to Azure CLI
         uses: azure/login@v2
         with:
@@ -76,38 +59,27 @@ jobs:
           inlineScript: |
             az account show
       
-      - name: Create Resource Group
-        run: |
-          az group create --name ${{ inputs.ResourceGroup }} --location ${{ inputs.acr-location }}  
-      
-            
-      # Create ACR 
-      - name: Creating ACR
-        run: |
-          az acr create --resource-group ${{ inputs.ResourceGroup }} --name ${{ inputs.acr-name }} --sku Basic --location ${{ inputs.acr-location }}
-      - name: Check if ACR exists
-        run: |
-          az acr show --name ${{ inputs.acr-name }} --resource-group ${{ inputs.ResourceGroup }} --output ACR.${{ inputs.acr-name }}.exists || echo "ACR does not exist"     
-      # Log in to ACR
       - name: Log in to Azure Container Registry (ACR)
-        run: |
-          az acr login --name ${{ inputs.acr-name }}
+        uses: azure/docker-login@v2
+        with:
+          acr-login-server: ${{ secrets.ACR_SERVER_URL }}
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
       
       # Verify if login was successful by listing repositories in ACR
       - name: List repositories in ACR
         run: |
           az acr repository list --name ${{ inputs.acr-name }} --output table
       
-      # Load Docker image from artifact
       - name: Load Docker image from artifact
         run: |
           docker load -i ./docker_image/${{ inputs.image-name }}_${{ inputs.tag }}.tar    
             
-      # Push Docker image to ACR
       - name: Push Docker image to ACR
         run: |
           docker images
           docker tag ${{ inputs.image-name }}:${{ inputs.tag }} ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
           echo "Listing Docker images..."
           docker images
+
           docker push ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
