@@ -11,10 +11,6 @@ on:
         description: 'Image name'
         required: true
         type: string
-      tag:
-        description: 'Tag'
-        required: true
-        type: string
       context:
         description: 'Context for Docker build'
         required: true
@@ -83,4 +79,5 @@ jobs:
           az acr repository show-tags --name ${{ inputs.ACR_LOGIN_SERVER }} --repository ${{ inputs.image-name }} --output table | grep ${{ github.sha }} && echo "Image successfully pushed!" || echo "Image not found in ACR!"
           docker push ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
     
+
 
