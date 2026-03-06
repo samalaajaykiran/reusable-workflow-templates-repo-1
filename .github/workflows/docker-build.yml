@@ -1,4 +1,4 @@
-name: Docker Build
+name: Docker Build & Docker Push to ACR
 
 on:
   workflow_call:
@@ -85,3 +85,4 @@ jobs:
           az acr repository show-tags --name ${{ inputs.ACR_LOGIN_SERVER }} --repository ${{ inputs.image-name }} --output table | grep ${{ github.sha }} && echo "Image successfully pushed!" || echo "Image not found in ACR!"
           docker push ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
     
+
