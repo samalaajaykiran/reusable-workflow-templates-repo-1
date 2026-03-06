@@ -76,8 +76,9 @@ jobs:
         run: |
           docker tag ${{ inputs.image-name }}:${{ github.sha }} ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
           echo "Listing Docker images..."
-          az acr repository show-tags --name ${{ inputs.ACR_LOGIN_SERVER }} --repository ${{ inputs.image-name }} --output table | grep ${{ github.sha }} && echo "Image successfully pushed!" || echo "Image not found in ACR!"
           docker push ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
+          az acr repository show-tags --name ${{ inputs.ACR_LOGIN_SERVER }} --repository ${{ inputs.image-name }} --output table | grep ${{ github.sha }} && echo "Image successfully pushed!" || echo "Image not found in ACR!"
     
+
 
 
