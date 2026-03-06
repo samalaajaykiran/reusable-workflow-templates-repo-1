@@ -51,9 +51,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image-name }}:${{ inputs.tag }} ${{ inputs.context }}
-          docker save ${{ inputs.image-name }}:${{ inputs.tag }} -o ${{ inputs.image-name }}_${{ inputs.tag }}.tar
-          
+          docker build -f ${{ inputs.dockerfile }} -t ${{ inputs.image-name }}:${{ github.sha }} ${{ inputs.context }}
       - name: List Docker images
         run: |
           echo "Listing Docker images..."
@@ -80,7 +78,7 @@ jobs:
                   
       - name: Push Docker image to ACR
         run: |
-          docker tag ${{ inputs.image-name }}:${{ inputs.tag }} ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
+          docker tag ${{ inputs.image-name }}:${{ github.sha }} ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
           echo "Listing Docker images..."
           az acr repository show-tags --name ${{ inputs.ACR_LOGIN_SERVER }} --repository ${{ inputs.image-name }} --output table | grep ${{ github.sha }} && echo "Image successfully pushed!" || echo "Image not found in ACR!"
           docker push ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
