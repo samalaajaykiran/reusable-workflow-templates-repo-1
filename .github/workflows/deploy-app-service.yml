@@ -15,7 +15,7 @@ on:
         description: 'Docker image name in ACR'
         required: true
         type: string
-      acr-login-server:
+      ACR_LOGIN_SERVER:
         description: 'Azure Container Registry login server'
         required: true  
         type: string
@@ -44,8 +44,9 @@ jobs:
           az webapp config container set \
             --name ${{ inputs.app-name }} \
             --resource-group ${{ inputs.ResourceGroup }} \
-            --container-image-name ${{ inputs.acr-login-server }}/${{ inputs.image-name }}:${{ github.sha }}
+            --container-image-name ${{ inputs.ACR_LOGIN_SERVER }}/${{ inputs.image-name }}:${{ github.sha }}
           
       - name: Output Web App URL
         run: |
           echo "Web app deployed at: https://${{ inputs.app-name }}.azurewebsites.net"
+
